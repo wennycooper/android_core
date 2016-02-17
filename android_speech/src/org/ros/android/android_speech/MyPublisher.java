@@ -9,7 +9,7 @@ import org.ros.node.topic.Publisher;
 import geometry_msgs.PoseStamped;
 
 /**
- * Created by kkuei on 2015/11/11.
+ * Created by kkuei on 2016/02/16
  */
 public class MyPublisher extends AbstractNodeMain {
 

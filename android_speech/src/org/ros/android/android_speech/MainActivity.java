@@ -38,11 +38,16 @@ import java.util.Locale;
 import sensor_msgs.CompressedImage;
 
 /**
- * Created by kkuei on 2015/11/11.
+ * Created by kkuei on 2016/02/16
  */
 public class MainActivity extends RosActivity {
 
     private MyPublisher myPublisher;
+    private MyPublisherForPredefinedPoses myPublisherForPredefinedPoses;
+    private MyPublisherForFollowMe myPublisherForFollowMe;
+    private MySubscriber mySubscriber;
+    TextToSpeech tts;
+
 //    private Talker talker;
 
     private Button mButton1;
@@ -57,6 +62,15 @@ public class MainActivity extends RosActivity {
         super("ANDBOT_SPEECH", "ANDBOT_SPEECH");
     }
 
+    public void myMethod()   {
+        Log.i(TAG, "myMethod");
+        runOnUiThread(new Runnable() {
+            public void run()
+            {
+                mButton1.performClick();
+            }
+        });
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -64,6 +78,26 @@ public class MainActivity extends RosActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        tts = new TextToSpeech(getApplicationContext(),
+                new TextToSpeech.OnInitListener() {
+                    @Override
+                    public void onInit(int status) {
+                        if (status != TextToSpeech.ERROR) {
+                            tts.setLanguage(Locale.US);
+                            tts.setSpeechRate((float) 0.85);
+                            tts.setPitch((float) 0.4);
+
+                            Log.i(TAG,
+                                    "avalib"
+                                            + tts.isLanguageAvailable(Locale.US));
+                            Log.i(TAG, "" + tts.getLanguage());
+
+                        } else {
+                            Toast.makeText(getApplicationContext(),
+                                    "Speech initialize error", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 
     }
 
@@ -222,11 +256,17 @@ public class MainActivity extends RosActivity {
     protected void init(NodeMainExecutor nodeMainExecutor) {
 
         myPublisher = new MyPublisher();
+        myPublisherForPredefinedPoses = new MyPublisherForPredefinedPoses();
+        myPublisherForFollowMe = new MyPublisherForFollowMe();
+        mySubscriber = new MySubscriber(MainActivity.this);
         //talker = new Talker();
 
         NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(getRosHostname());
         nodeConfiguration.setMasterUri(getMasterUri());
         nodeMainExecutor.execute(myPublisher, nodeConfiguration);
+        nodeMainExecutor.execute(myPublisherForPredefinedPoses, nodeConfiguration);
+        nodeMainExecutor.execute(myPublisherForFollowMe, nodeConfiguration);
+        nodeMainExecutor.execute(mySubscriber, nodeConfiguration);
         //nodeMainExecutor.execute(talker, nodeConfiguration);
 
     }
@@ -238,7 +278,7 @@ public class MainActivity extends RosActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.d(TAG, "onActivityResult");
+        Log.i(TAG, "onActivityResult()");
         switch (requestCode) {
             case RESULT_SPEECH:
                 if (resultCode == RESULT_OK && null != data) {
@@ -247,18 +287,77 @@ public class MainActivity extends RosActivity {
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 
                     if (matches.size() > 0) {
-                        Log.d(TAG, matches.get(0));
+                        Log.i(TAG, matches.get(0));
 
 
                         String text = matches.get(0);
                         myPublisher.publishMessage(text);  // added by KKUEI
+
+
+
+                        /*
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                        */
+
+                        String nice_to_meet_you = "nice to meet you";
+                        String your_name = "your name";
+                        String introduce_yourself = "introduce yourself";
+                        String limp = "limp";
+                        String arms_movement = "arms movement";
+                        String kung_fu = "kung fu";
+                        String stop_follow_me = "stop follow me";
+                        String follow_me = "follow me";
+
+                        // [KKUEI] Process speech commands
+                        if (text.contains(your_name)) {
+                            //myPublisher.publishMessage(text);
+                            tts.speak("My name is Andbot, sir", TextToSpeech.QUEUE_FLUSH, null);
+                        } else if (text.contains(nice_to_meet_you)) {
+                            tts.speak("It's my pleasure to meet you too.", TextToSpeech.QUEUE_FLUSH, null);
 
 
+                        } else if (text.contains(introduce_yourself)) {
+                            tts.speak("Sure!", TextToSpeech.QUEUE_ADD, null);
+                            tts.speak("My name is Andbot", TextToSpeech.QUEUE_ADD, null);
+                            tts.speak("I was developed by Advanced Robotics Technologies.", TextToSpeech.QUEUE_ADD, null);
+                            tts.speak("I have three major functions, home care, home security and home entertainment", TextToSpeech.QUEUE_ADD, null);
+                            tts.speak("As a family member, I hope I can bring security, happiness and great pleasant to everybody. Over.", TextToSpeech.QUEUE_ADD, null);
+
+                        } else if (text.contains(arms_movement)) {
+                            tts.speak("Yes, sir. I'm now showing you the arms movements", TextToSpeech.QUEUE_FLUSH, null);
+                            myPublisherForPredefinedPoses.publishMessage(3);
+
+
+                        } else if (text.contains(kung_fu)) {
+                            tts.speak("Sure, here is the kung fu.", TextToSpeech.QUEUE_FLUSH, null);
+                            myPublisherForPredefinedPoses.publishMessage(1);
+
+                            // delay for a while
+                            /*
+                            try {
+                                Thread.sleep(10000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            myPublisherForPredefinedPoses.publishMessage(0);
+                            */
+                        } else if (text.contains(limp)) {
+                            tts.speak("Yes, sir. limp", TextToSpeech.QUEUE_FLUSH, null);
+                            myPublisherForPredefinedPoses.publishMessage(0);
+
+
+                        } else if (text.contains(stop_follow_me)) {
+                            tts.speak("Yes, sir. follow me is stopped.", TextToSpeech.QUEUE_FLUSH, null);
+                            myPublisherForFollowMe.publishMessage(0);
+                        } else if (text.contains(follow_me)) {
+                            tts.speak("Yes, sir. follow me is started.", TextToSpeech.QUEUE_FLUSH, null);
+                            myPublisherForFollowMe.publishMessage(1);
+                        }
                     }
 
                 }
