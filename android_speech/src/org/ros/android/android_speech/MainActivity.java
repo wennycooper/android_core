@@ -46,6 +46,7 @@ public class MainActivity extends RosActivity {
     private MyPublisherForPredefinedPoses myPublisherForPredefinedPoses;
     private MyPublisherForFollowMe myPublisherForFollowMe;
     private MySubscriber mySubscriber;
+    private MySubscriberForTTS mySubscriberForTTS;
     TextToSpeech tts;
 
 //    private Talker talker;
@@ -259,6 +260,7 @@ public class MainActivity extends RosActivity {
         myPublisherForPredefinedPoses = new MyPublisherForPredefinedPoses();
         myPublisherForFollowMe = new MyPublisherForFollowMe();
         mySubscriber = new MySubscriber(MainActivity.this);
+        mySubscriberForTTS = new MySubscriberForTTS(MainActivity.this);
         //talker = new Talker();
 
         NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(getRosHostname());
@@ -267,6 +269,7 @@ public class MainActivity extends RosActivity {
         nodeMainExecutor.execute(myPublisherForPredefinedPoses, nodeConfiguration);
         nodeMainExecutor.execute(myPublisherForFollowMe, nodeConfiguration);
         nodeMainExecutor.execute(mySubscriber, nodeConfiguration);
+        nodeMainExecutor.execute(mySubscriberForTTS, nodeConfiguration);
         //nodeMainExecutor.execute(talker, nodeConfiguration);
 
     }
@@ -291,6 +294,8 @@ public class MainActivity extends RosActivity {
 
 
                         String text = matches.get(0);
+                        text = text.toLowerCase();
+
                         myPublisher.publishMessage(text);  // added by KKUEI
 
 
@@ -306,9 +311,16 @@ public class MainActivity extends RosActivity {
                         String nice_to_meet_you = "nice to meet you";
                         String your_name = "your name";
                         String introduce_yourself = "introduce yourself";
+
                         String limp = "limp";
-                        String arms_movement = "arms movement";
+                        String original_position = "original position";
+
+                        String arms_movement = "movement"; // strong
+                        String muscle = "muscle";
+                        String dance = "dance";
+
                         String kung_fu = "kung fu";
+
                         String stop_follow_me = "stop follow me";
                         String follow_me = "follow me";
 
@@ -327,7 +339,7 @@ public class MainActivity extends RosActivity {
                             tts.speak("I have three major functions, home care, home security and home entertainment", TextToSpeech.QUEUE_ADD, null);
                             tts.speak("As a family member, I hope I can bring security, happiness and great pleasant to everybody. Over.", TextToSpeech.QUEUE_ADD, null);
 
-                        } else if (text.contains(arms_movement)) {
+                        } else if (text.contains(dance) || text.contains(muscle) || text.contains(arms_movement)) {
                             tts.speak("Yes, sir. I'm now showing you the arms movements", TextToSpeech.QUEUE_FLUSH, null);
                             myPublisherForPredefinedPoses.publishMessage(3);
 
@@ -346,7 +358,7 @@ public class MainActivity extends RosActivity {
 
                             myPublisherForPredefinedPoses.publishMessage(0);
                             */
-                        } else if (text.contains(limp)) {
+                        } else if (text.contains(limp) || text.contains(original_position)) {
                             tts.speak("Yes, sir. limp", TextToSpeech.QUEUE_FLUSH, null);
                             myPublisherForPredefinedPoses.publishMessage(0);
 
@@ -387,5 +399,9 @@ public class MainActivity extends RosActivity {
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void ttsSpeak(String data) {
+        tts.speak(data, TextToSpeech.QUEUE_ADD, null);
     }
 }
