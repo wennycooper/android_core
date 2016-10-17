@@ -93,7 +93,7 @@ public class MainActivity extends RosActivity {
     visualizationView.getCamera().jumpToFrame("map");
     visualizationView.onCreate(Lists.<Layer>newArrayList(new CameraControlLayer(),
         new OccupancyGridLayer("map"), new PathLayer("move_base/NavfnROS/plan"), new PathLayer(
-            "move_base_dynamic/NavfnROS/plan"), new LaserScanLayer("xv11_scan"),
+            "move_base_dynamic/NavfnROS/plan"), new LaserScanLayer("rplidar_scan"),
         new PoseSubscriberLayer("move_base_simple/goal"), new PosePublisherLayer(
             "move_base_simple/goal"), new RobotLayer("base_footprint")));
   }

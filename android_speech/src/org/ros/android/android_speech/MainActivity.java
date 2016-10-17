@@ -308,6 +308,8 @@ public class MainActivity extends RosActivity {
                         }
                         */
 
+                        String say_hello = "say hello";
+                        String stand_by = "stand by";
                         String nice_to_meet_you = "nice to meet you";
                         String your_name = "your name";
                         String introduce_yourself = "introduce yourself";
@@ -332,11 +334,11 @@ public class MainActivity extends RosActivity {
                             tts.speak("It's my pleasure to meet you too.", TextToSpeech.QUEUE_FLUSH, null);
 
 
-                        } else if (text.contains(introduce_yourself)) {
+                        } else if (text.contains(introduce_yourself) || text.contains(say_hello)) {
                             tts.speak("Sure!", TextToSpeech.QUEUE_ADD, null);
-                            tts.speak("My name is Andbot", TextToSpeech.QUEUE_ADD, null);
+                            tts.speak("Dear valued customer, my name is Andbot", TextToSpeech.QUEUE_ADD, null);
                             tts.speak("I was developed by Advanced Robotics Technologies.", TextToSpeech.QUEUE_ADD, null);
-                            tts.speak("I have three major functions, home care, home security and home entertainment", TextToSpeech.QUEUE_ADD, null);
+                            tts.speak("I can perform functions in home care, home security, home entertainment and home education.", TextToSpeech.QUEUE_ADD, null);
                             tts.speak("As a family member, I hope I can bring security, happiness and great pleasant to everybody. Over.", TextToSpeech.QUEUE_ADD, null);
 
                         } else if (text.contains(dance) || text.contains(muscle) || text.contains(arms_movement)) {
@@ -358,7 +360,7 @@ public class MainActivity extends RosActivity {
 
                             myPublisherForPredefinedPoses.publishMessage(0);
                             */
-                        } else if (text.contains(limp) || text.contains(original_position)) {
+                        } else if (text.contains(limp) || text.contains(original_position) || text.contains(stand_by)) {
                             tts.speak("Yes, sir. limp", TextToSpeech.QUEUE_FLUSH, null);
                             myPublisherForPredefinedPoses.publishMessage(0);
 
